@@ -78,7 +78,7 @@ function createMarkupCountryCard(country) {
 function tansformLanguagesToText(languages) {
   let languagesMarkup = '';
   let total = 0;
-  languagesLength = Object.keys(languages).length;
+  const languagesLength = Object.keys(languages).length;
 
   for (language in languages) {
     total += 1;
