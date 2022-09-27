@@ -52,6 +52,7 @@ function createMarkupCountryList(countries) {
 
 function createMarkupCountryCard(country) {
   clearCountryList();
+  getRefs().countryInfo.classList.add('card');
   const countryCardMarkup = `
       <img src="${country[0].flags.svg}" class="card-img-top" alt="${
     country[0].name.official
@@ -72,7 +73,6 @@ function createMarkupCountryCard(country) {
       </div>
     `;
   getRefs().countryInfo.innerHTML = countryCardMarkup;
-  getRefs().countryInfo.classList.add('card');
 }
 
 function tansformLanguagesToText(languages) {
@@ -95,7 +95,7 @@ function fetchCountriesResponse(country, callback) {
   fetchCountries(country)
     .then(callback)
     .catch(() => {
-      Notify.failure('Oops, there is no country with that name.');
+      Notify.failure('Oops, there is no country with such name.');
       clearCountryList();
       clearCountryInfo();
       getRefs().countryInfo.classList.remove('card');
