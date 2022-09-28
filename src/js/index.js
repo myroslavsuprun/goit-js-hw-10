@@ -1,10 +1,10 @@
 import '../css/styles.css';
 import { fetchCountries } from './fetchCountries';
+import * as classes from '../styles.scss';
 import { getRefs } from './refs';
 import debounce from 'lodash.debounce';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import * as bootstrap from 'bootstrap';
-import * as classes from '../styles.scss';
 
 const DEBOUNCE_DELAY = 300;
 
@@ -21,7 +21,11 @@ function onSearchFormInput(e) {
     return;
   }
 
-  fetchCountriesResponse(e.target.value, createCountriesResponse);
+  fetchCountriesResponse(
+    e.target.value,
+    createCountriesResponse,
+    fetchCountriesFailureResponse
+  );
 }
 
 function createCountriesResponse(response) {
@@ -29,7 +33,7 @@ function createCountriesResponse(response) {
     Notify.info('Too many matches found. Please enter a more specific name.');
     return;
   }
-  if (response.length >= 2) {
+  if (response.length >= 2 && response.length <= 9) {
     createMarkupCountryList(response);
     return;
   }
@@ -47,12 +51,14 @@ function createMarkupCountryList(countries) {
     textMarkup += toAdd;
     return textMarkup;
   }, '');
+
   getRefs().countryList.innerHTML = textMarkup;
 }
 
 function createMarkupCountryCard(country) {
   clearCountryList();
   getRefs().countryInfo.classList.add('card');
+
   const countryCardMarkup = `
       <img src="${country[0].flags.svg}" class="card-img-top" alt="${
     country[0].name.official
@@ -71,7 +77,8 @@ function createMarkupCountryCard(country) {
           )}</li>
         </ul>
       </div>
-    `;
+  `;
+
   getRefs().countryInfo.innerHTML = countryCardMarkup;
 }
 
@@ -88,18 +95,19 @@ function tansformLanguagesToText(languages) {
       languagesMarkup += languages[language] + ', ';
     }
   }
+
   return languagesMarkup;
 }
 
-function fetchCountriesResponse(country, callback) {
-  fetchCountries(country)
-    .then(callback)
-    .catch(() => {
-      Notify.failure('Oops, there is no country with such name.');
-      clearCountryList();
-      clearCountryInfo();
-      getRefs().countryInfo.classList.remove('card');
-    });
+function fetchCountriesResponse(country, callbackSuccess, callbackFailure) {
+  fetchCountries(country).then(callbackSuccess).catch(callbackFailure);
+}
+
+function fetchCountriesFailureResponse() {
+  Notify.failure('Oops, there is no country with such name.');
+  clearCountryList();
+  clearCountryInfo();
+  getRefs().countryInfo.classList.remove('card');
 }
 
 function clearCountryList() {
