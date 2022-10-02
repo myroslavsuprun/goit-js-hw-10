@@ -1,5 +1,5 @@
 import '../css/styles.css';
-import '../styles.scss';
+import '../scss/index.scss';
 import { fetchCountries } from './fetchCountries';
 import { refs } from './refs';
 import debounce from 'lodash.debounce';
