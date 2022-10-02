@@ -1,3 +1,5 @@
+import { Notify } from 'notiflix';
+
 const BASE_URL = 'https://restcountries.com/v3.1/name/';
 
 async function fetchCountries(countryName) {
@@ -7,7 +9,7 @@ async function fetchCountries(countryName) {
     const countryResponseJSON = await countryResponse.json();
     return countryResponseJSON;
   } catch {
-    console.log('Some mistake occured');
+    Notify.failure('Oops, there is a mistake occured. We are working on it');
   }
 }
 
