@@ -1,10 +1,9 @@
 import '../css/styles.css';
 import { fetchCountries } from './fetchCountries';
-import * as classes from '../styles.scss';
+import '../styles.scss';
 import { getRefs } from './refs';
 import debounce from 'lodash.debounce';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
-import * as bootstrap from 'bootstrap';
 
 const DEBOUNCE_DELAY = 300;
 
