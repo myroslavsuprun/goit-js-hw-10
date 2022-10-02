@@ -1,7 +1,7 @@
-export function getRefs() {
-  return {
-    searchField: document.getElementById('search-box'),
-    countryList: document.querySelector('.country-list'),
-    countryInfo: document.querySelector('.country-info'),
-  };
-}
+const refs = {
+  searchFieldInput: document.getElementById('search-box'),
+  countryListWrapper: document.querySelector('.country-list'),
+  countryCardWrapper: document.querySelector('.country-info'),
+};
+
+export { refs };

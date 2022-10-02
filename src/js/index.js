@@ -1,118 +1,113 @@
 import '../css/styles.css';
-import { fetchCountries } from './fetchCountries';
 import '../styles.scss';
-import { getRefs } from './refs';
+import { fetchCountries } from './fetchCountries';
+import { refs } from './refs';
 import debounce from 'lodash.debounce';
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
 
-getRefs().searchField.addEventListener(
+const { searchFieldInput, countryListWrapper, countryCardWrapper } = refs;
+
+searchFieldInput.addEventListener(
   'input',
-  debounce(onSearchFormInput, DEBOUNCE_DELAY)
+  debounce(onSearchFieldInput, DEBOUNCE_DELAY)
 );
 
-function onSearchFormInput(e) {
-  if (e.target.value === '') {
-    clearCountryInfo();
+async function onSearchFieldInput(e) {
+  const countryRequestName = e.target.value;
+  const countryResponse = await fetchCountries(countryRequestName);
+
+  if (countryRequestName === '') {
+    clearCountryCard();
     clearCountryList();
-    getRefs().countryInfo.classList.remove('card');
+
     return;
   }
 
-  fetchCountriesResponse(
-    e.target.value,
-    createCountriesResponse,
-    fetchCountriesFailureResponse
-  );
-}
+  if (countryResponse.status === 404) {
+    clearCountryCard();
+    clearCountryList();
 
-function createCountriesResponse(response) {
-  if (response.length >= 10) {
-    Notify.info('Too many matches found. Please enter a more specific name.');
+    Notiflix.Notify.failure('Oops, there is no country with that name');
+  }
+
+  if (countryResponse.length > 10) {
+    Notiflix.Notify.failure(
+      'Too many matches found. Please enter a more specific name.'
+    );
+
     return;
   }
-  if (response.length >= 2 && response.length <= 9) {
-    createMarkupCountryList(response);
+
+  if (countryResponse.length >= 2) {
+    clearCountryCard();
+    createCountriesMarkupList(countryResponse);
+
     return;
   }
-  createMarkupCountryCard(response);
+
+  if (countryResponse.length === 1) {
+    clearCountryList();
+    createCountryCardMarkup(countryResponse[0]);
+
+    countryCardWrapper.classList.add('card');
+
+    return;
+  }
 }
 
-function createMarkupCountryList(countries) {
-  clearCountryInfo();
-  getRefs().countryInfo.classList.remove('card');
+function createCountryCardMarkup(country) {
+  let { name, capital, population, flags, languages } = country;
 
-  const textMarkup = countries.reduce((textMarkup, country) => {
-    const toAdd = `
-          <li class="list-group-item"><img class="me-3" src="${country.flags.svg}" alt="${country.name.official} flag" width="50">${country.name.official}</li>
-      `;
-    textMarkup += toAdd;
-    return textMarkup;
-  }, '');
+  languages = languagesFromObjToStr(languages);
+  population = separatePopulationWithSpaces(population.toString());
 
-  getRefs().countryList.innerHTML = textMarkup;
-}
-
-function createMarkupCountryCard(country) {
-  clearCountryList();
-  getRefs().countryInfo.classList.add('card');
-
-  const countryCardMarkup = `
-      <img src="${country[0].flags.svg}" class="card-img-top" alt="${
-    country[0].name.official
-  } flag">
-      <div class="card-body">
-        <h5 class="card-title">${country[0].name.official}</h5>
+  const markup = `
+    <img src="${flags.svg}" class="card-img-top" alt="${name.official} flag">
+    <div class="card-body">
+        <h5 class="card-title">${name.official}</h5>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><span class="fw-bold">Capital: </span>${
-            country[0].capital[0]
-          }</li>
-          <li class="list-group-item"><span class="fw-bold">Population: </span>${
-            country[0].population
-          }</li>
-          <li class="list-group-item"><span class="fw-bold">Languages: </span>${tansformLanguagesToText(
-            country[0].languages
-          )}</li>
+        <li class="list-group-item"><span class="fw-bold">Capital: </span>${capital}</li>
+        <li class="list-group-item"><span class="fw-bold">Population: </span>${population}</li>
+        <li class="list-group-item"><span class="fw-bold">Languages: </span>${languages}</li>
         </ul>
-      </div>
-  `;
+    </div>
+    `;
 
-  getRefs().countryInfo.innerHTML = countryCardMarkup;
+  countryCardWrapper.innerHTML = markup;
 }
 
-function tansformLanguagesToText(languages) {
-  let languagesMarkup = '';
-  let total = 0;
-  const languagesLength = Object.keys(languages).length;
-
-  for (language in languages) {
-    total += 1;
-    if (total === languagesLength) {
-      languagesMarkup += languages[language];
-    } else {
-      languagesMarkup += languages[language] + ', ';
-    }
-  }
-
-  return languagesMarkup;
+function createCountriesMarkupList(countries) {
+  const markupList = countries.reduce(createOneCountryMarkUp, '');
+  countryListWrapper.innerHTML = markupList;
 }
 
-function fetchCountriesResponse(country, callbackSuccess, callbackFailure) {
-  fetchCountries(country).then(callbackSuccess).catch(callbackFailure);
+function createOneCountryMarkUp(totalMarkup, country) {
+  const { name, flags } = country;
+  const markup = `
+    <li class="list-group-item">
+        <img class="me-3" src="${flags.svg}"
+            alt="${name.official}
+            flag" width="50">${name.official}
+    </li>
+    `;
+  return totalMarkup + markup;
 }
 
-function fetchCountriesFailureResponse() {
-  Notify.failure('Oops, there is no country with such name.');
-  clearCountryList();
-  clearCountryInfo();
-  getRefs().countryInfo.classList.remove('card');
+function languagesFromObjToStr(languages) {
+  return Object.values(languages).join(', ');
+}
+
+function separatePopulationWithSpaces(number) {
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+function clearCountryCard() {
+  countryCardWrapper.innerHTML = '';
+  countryCardWrapper.classList.remove('card');
 }
 
 function clearCountryList() {
-  getRefs().countryList.innerHTML = '';
-}
-
-function clearCountryInfo() {
-  getRefs().countryInfo.innerHTML = '';
+  countryListWrapper.innerHTML = '';
 }
