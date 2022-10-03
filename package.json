@@ -18,15 +18,15 @@
     "url": "https://github.com/goitacademy/parcel-project-template/issues"
   },
   "dependencies": {
-    "modern-normalize": "^1.1.0",
-    "lodash.debounce": "^4.0.8",
-    "notiflix": "^3.2.5",
+    "@parcel/transformer-sass": "^2.7.0",
+    "@popperjs/core": "^2.11.6",
     "bootstrap": "^5.2.1",
-    "@popperjs/core": "^2.11.6"
+    "lodash.debounce": "^4.0.8",
+    "modern-normalize": "^1.1.0",
+    "notiflix": "^3.2.5",
+    "parcel": "^2.7.0"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.6.0",
-    "parcel": "^2.6.0",
     "parcel-reporter-clean-dist": "^1.0.4",
     "posthtml-include": "^1.7.4"
   },

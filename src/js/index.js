@@ -6,9 +6,7 @@ import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
-
 const { searchFieldInput, countryListWrapper, countryCardWrapper } = refs;
-
 searchFieldInput.addEventListener(
   'input',
   debounce(onSearchFieldInput, DEBOUNCE_DELAY)
@@ -16,7 +14,6 @@ searchFieldInput.addEventListener(
 
 async function onSearchFieldInput(e) {
   const countryRequestName = e.target.value;
-  const countryResponse = await fetchCountries(countryRequestName);
 
   if (countryRequestName === '') {
     clearCountryCard();
@@ -24,6 +21,8 @@ async function onSearchFieldInput(e) {
 
     return;
   }
+
+  const countryResponse = await fetchCountries(countryRequestName);
 
   if (countryResponse.status === 404) {
     clearCountryCard();
